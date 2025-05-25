@@ -24,8 +24,8 @@
     }
   },
   "dashboard": {
-    "welcome": "欢迎来到仪表板",
-    "description": "这是一个空白页面，您可以在这里添加您需要的内容。",
+    "welcome": "欢迎来到T2C，我是林艺奇",
+    "description": "是兄弟就来砍我",
     "menu": {
       "newWork": "新建工作",
       "myWork": "我的工作"
@@ -35,6 +35,21 @@
     "verificationCode": {
       "subject": "登录验证码",
       "content": "您的登录验证码是：{{code}}，在5分钟内有效，请尽快登录。"
+    }
+  },
+  "create": {
+    "title": "创建新作品",
+    "description": "请描述您想要创建的 CAD 模型，我们将使用 AI 为您生成。",
+    "input": {
+      "placeholder": "例如：一个带有圆形底座的圆柱体，高度为 10cm，底座直径为 5cm..."
+    },
+    "validation": {
+      "required": "请输入模型描述"
+    },
+    "submit": {
+      "default": "开始生成",
+      "generating": "正在生成...",
+      "failed": "生成失败，请稍后重试"
     }
   }
 } 

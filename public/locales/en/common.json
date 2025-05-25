@@ -36,5 +36,20 @@
       "subject": "Login Verification Code",
       "content": "Your login verification code is: {{code}}. It will expire in 5 minutes, please login as soon as possible."
     }
+  },
+  "create": {
+    "title": "Create New Work",
+    "description": "Describe the CAD model you want to create, and we'll generate it using AI.",
+    "input": {
+      "placeholder": "Example: A cylinder with a circular base, height 10cm, base diameter 5cm..."
+    },
+    "validation": {
+      "required": "Please enter model description"
+    },
+    "submit": {
+      "default": "Start Generating",
+      "generating": "Generating...",
+      "failed": "Generation failed, please try again later"
+    }
   }
 } 

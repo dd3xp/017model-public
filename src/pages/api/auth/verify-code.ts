@@ -48,14 +48,14 @@ export default async function handler(
       });
 
   const token = sign(
-        { email: user.email },
+        { id: user.id, email: user.email },
     process.env.JWT_SECRET || 'your-secret-key',
     { expiresIn: '7d' }
   );
 
       await verificationCode.destroy();
 
-  res.setHeader('Set-Cookie', `token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`);
+      res.setHeader('Set-Cookie', `token=${token}; Path=/; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`);
   res.status(200).json({ message: 'Login successful' });
     } catch (error) {
       console.error('Failed to verify code:', error);

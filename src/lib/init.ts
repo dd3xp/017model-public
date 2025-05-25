@@ -1,6 +1,7 @@
 import sequelize from './db';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
+import TempWork from '@/models/TempWork';
 
 export async function initDatabase() {
   if (!sequelize) return;
@@ -11,6 +12,7 @@ export async function initDatabase() {
     
     await User.sync();
     await VerificationCode.sync();
+    await TempWork.sync();
     console.log('Database tables created successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
