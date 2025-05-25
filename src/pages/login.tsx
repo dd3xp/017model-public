@@ -66,7 +66,7 @@ export default function Login() {
       });
 
       if (response.ok) {
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       } else {
         alert(t('login.submit.invalidCode'));
       }
