@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -8,7 +7,6 @@ import TopBar from '@/components/TopBar';
 export default function Dashboard() {
   const { t } = useTranslation('common');
   const router = useRouter();
-  const [username, setUsername] = useState('U');
 
   const handleCreateWork = () => {
     router.push('/create');
@@ -21,7 +19,7 @@ export default function Dashboard() {
   return (
     <div className={styles.container}>
       <TopBar 
-        username={username}
+        username="U"
         menuItems={[
           { label: t('dashboard.menu.newWork'), onClick: handleCreateWork },
           { label: t('dashboard.menu.myWork'), onClick: handleViewWork }

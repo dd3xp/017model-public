@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Content-Type', 'model/stl');
     res.setHeader('Content-Disposition', `inline; filename="${id}.stl"`);
     res.end(stlBuffer);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to get STL file' });
   }
 } 

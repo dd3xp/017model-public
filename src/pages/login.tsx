@@ -43,7 +43,7 @@ export default function Login() {
       } else {
         alert(t('login.verificationCode.sendFailed'));
       }
-    } catch (error) {
+    } catch {
       alert(t('login.verificationCode.sendFailed'));
     } finally {
       setIsLoading(false);
@@ -70,7 +70,7 @@ export default function Login() {
       } else {
         alert(t('login.submit.invalidCode'));
       }
-    } catch (error) {
+    } catch {
       alert(t('login.submit.failed'));
     } finally {
       setIsLoading(false);

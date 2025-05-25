@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { initDatabase } from '@/lib/init';
-import sequelize from '@/lib/db';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
 import TempWork from '@/models/TempWork';

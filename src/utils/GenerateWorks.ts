@@ -8,14 +8,11 @@
     然后返回这个文件的id，然后前端进行展示。
 */
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 import { writeFile, readFile } from 'fs/promises';
 import { execFile } from 'child_process';
 import path from 'path';
-import os from 'os';
 import fs from 'fs';
 import TempWork from '@/models/TempWork';
-import User from '@/models/User';
 
 export function encodeDescription(description: string): string {
   return description;
@@ -23,7 +20,22 @@ export function encodeDescription(description: string): string {
 
 export async function generateScadFile(description: string): Promise<string> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
-  const prompt = `Generate a valid OpenSCAD file for the following description. The file should create a simple 3D model. Only return the SCAD code without any explanation or markdown formatting:\n${description}`;
+  const prompt = `You are an expert in OpenSCAD. When given a brief description of a 3D part, you must output clear, well-structured, and directly runnable OpenSCAD code that accurately represents the described part. The code must:
+
+                  1. Use module definitions (module) when appropriate.
+                  2. Use basic OpenSCAD primitives (such as cube, cylinder, sphere, etc.) and transformation operations.
+                  3. Add meaningful comments explaining each part and operation.
+                  4. Set reasonable default dimensions and parameters based on the description.
+                  5. Be well-formatted and easy to read.
+
+                  Assume the coordinate origin is (0,0,0) by default, and the part should be centered or reasonably positioned.
+
+                  For example, if the input is 'a box', the output should be OpenSCAD code with comments that creates a box.
+
+                  Do not output any non-code content.
+
+                  Description: ${description}`;
+
   const response = await axios.post(
     'https://api.deepseek.com/v1/chat/completions',
     {
@@ -71,7 +83,7 @@ export async function convertScadToStl(scadContent: string, userId: string): Pro
         }
       );
     });
-  } catch (error) {
+  } catch {
     const fallbackScad = 'cube([10, 10, 10]);';
     await writeFile(scadPath, fallbackScad, 'utf-8');
     await new Promise<void>((resolve, reject) => {

@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
     await jwtVerify(token, secret);
     return NextResponse.next();
-  } catch (error) {
+  } catch {
     const url = new URL('/login', request.url);
     return NextResponse.redirect(url);
   }

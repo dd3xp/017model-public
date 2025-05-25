@@ -1,27 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styles from '@/styles/Create.module.css';
 import TopBar from '@/components/TopBar';
 import { jwtDecode } from 'jwt-decode';
-import { Canvas, useLoader } from '@react-three/fiber';
-import React, { Suspense } from 'react';
 import * as THREE from 'three';
-// @ts-ignore
+// @ts-expect-error: STLLoader is not typed in three/examples
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
-// @ts-ignore
+// @ts-expect-error: OrbitControls is not typed in three/examples
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
-function STLPreview({ workId }: { workId: string }) {
-  const url = `/api/works/stl?id=${workId}`;
-  const geometry = useLoader(STLLoader, url);
-  return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial color="#2194ce" />
-    </mesh>
-  );
-}
 
 export default function CreateWork() {
   const { t } = useTranslation('common');
@@ -31,7 +19,7 @@ export default function CreateWork() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [workId, setWorkId] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
-  const previewRef = React.useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -39,12 +27,11 @@ export default function CreateWork() {
       router.replace('/login');
       return;
     }
-
     try {
-      const decoded: any = jwtDecode(token);
+      const decoded = jwtDecode<{ id: number; email: string }>(token);
       setUserEmail(decoded.email);
       setUserId(decoded.id);
-    } catch (error) {
+    } catch {
       router.replace('/login');
     }
   }, [router]);
@@ -63,12 +50,10 @@ export default function CreateWork() {
       alert(t('create.validation.required'));
       return;
     }
-
     if (!userId) {
       router.replace('/login');
       return;
     }
-
     setIsGenerating(true);
     try {
       const response = await fetch('/api/works/create', {
@@ -78,7 +63,6 @@ export default function CreateWork() {
         },
         body: JSON.stringify({ userId, description }),
       });
-
       if (response.ok) {
         const data = await response.json();
         setDescription('');
@@ -87,49 +71,36 @@ export default function CreateWork() {
       } else {
         alert(t('create.submit.failed'));
       }
-    } catch (error) {
+    } catch {
       alert(t('create.submit.failed'));
     } finally {
       setIsGenerating(false);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!workId || !previewRef.current) return;
-    previewRef.current.innerHTML = '';
-
+    const container = previewRef.current;
+    container.innerHTML = '';
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, previewRef.current.clientWidth / previewRef.current.clientHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(50, 50, 50);
     scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    pointLight.position.set(100, 100, 100);
-    scene.add(pointLight);
-
-    // 光照
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(100, 100, 100);
     dirLight.castShadow = true;
     scene.add(dirLight);
-
-    // 坐标轴辅助线
     const axesHelper = new THREE.AxesHelper(100);
     scene.add(axesHelper);
-    // 网格辅助线
     const gridHelper = new THREE.GridHelper(200, 20);
     scene.add(gridHelper);
-
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor('#f0f0f0');
-    renderer.setSize(previewRef.current.clientWidth, 575);
+    renderer.setSize(container.clientWidth, 575);
     renderer.shadowMap.enabled = true;
-    previewRef.current.appendChild(renderer.domElement);
-
+    container.appendChild(renderer.domElement);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-
     const loader = new STLLoader();
     loader.load(`/api/works/stl?id=${workId}`, (geometry: THREE.BufferGeometry) => {
       const material = new THREE.MeshStandardMaterial({ color: 0x2194ce });
@@ -143,16 +114,14 @@ export default function CreateWork() {
       mesh.position.sub(center);
       animate();
     });
-
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     }
-
     return () => {
       renderer.dispose();
-      previewRef.current && (previewRef.current.innerHTML = '');
+      container.innerHTML = '';
     };
   }, [workId]);
 
@@ -173,7 +142,6 @@ export default function CreateWork() {
         <div className={styles.content}>
           <h2>{t('create.title')}</h2>
           <p className={styles.description}>{t('create.description')}</p>
-          
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
               <textarea

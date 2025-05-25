@@ -17,7 +17,7 @@ export default function MenuTemplate({ open, anchorRef, onClose, children }: Men
       const menu = menuRef.current;
       const menuWidth = menu.offsetWidth;
       let x = rect.left;
-      let y = rect.bottom + 8;
+      const y = rect.bottom + 8;
       if (window.innerWidth - rect.left < menuWidth) {
         x = rect.right - menuWidth;
       }
