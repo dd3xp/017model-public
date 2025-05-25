@@ -1,28 +1,33 @@
-# 配置如下env文件
-## SMTP配置
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM=
+# Text2CAD
+## 安装与运行
+1. 克隆项目：
+   ```bash
+   git clone <repository-url>
+   cd text2cad
+   ```
 
-## JWT配置
-JWT_SECRET=
+2. 安装依赖：
+   ```bash
+   npm install
+   ```
 
-## 数据库配置
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
+3. 配置环境变量：
+   在项目根目录创建 `.env` 文件，并添加以下内容：
+   ```
+   JWT_SECRET=your-secret-key
+   DB_HOST=localhost
+   DB_USER=your-db-user
+   DB_PASS=your-db-password
+   DB_NAME=your-db-name
+   ```
 
-## deepseek密钥
-DEEPSEEK_API_KEY=
+4. 运行开发服务器：
+   ```bash
+   npm run dev
+   ```
 
-# 创建数据库
-CREATE DATABASE your-database-name
-
-# 启动项目
-npm install
-npm run build
-npm run start
+5. 构建生产版本：
+   ```bash
+   npm run build
+   npm start
+   ```
