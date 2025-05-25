@@ -30,33 +30,33 @@ export default async function handler(
       });
 
       if (!verificationCode) {
-    return res.status(400).json({ message: 'No verification code found' });
-  }
+        return res.status(400).json({ message: 'No verification code found' });
+      }
 
       if (new Date() > verificationCode.expires) {
         await verificationCode.destroy();
-    return res.status(400).json({ message: 'Verification code expired' });
-  }
+        return res.status(400).json({ message: 'Verification code expired' });
+      }
 
       if (code !== verificationCode.code) {
-    return res.status(400).json({ message: 'Invalid verification code' });
-  }
+        return res.status(400).json({ message: 'Invalid verification code' });
+      }
 
       const [user] = await User.findOrCreate({
         where: { email },
         defaults: { email }
       });
 
-  const token = sign(
+      const token = sign(
         { id: user.id, email: user.email },
-    process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: '7d' }
-  );
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '7d' }
+      );
 
       await verificationCode.destroy();
 
       res.setHeader('Set-Cookie', `token=${token}; Path=/; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`);
-  res.status(200).json({ message: 'Login successful' });
+      res.status(200).json({ message: 'Login successful' });
     } catch (error) {
       console.error('Failed to verify code:', error);
       res.status(500).json({ message: 'Internal server error' });
