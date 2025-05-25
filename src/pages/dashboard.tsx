@@ -33,10 +33,14 @@ export default function Dashboard() {
     router.push('/dashboard/works');
   };
 
+  if (!userEmail) {
+    return null;
+  }
+
   return (
     <div className={styles.container}>
       <TopBar 
-        username={userEmail || 'U'}
+        username={userEmail}
         menuItems={[
           { label: t('dashboard.menu.newWork'), onClick: handleCreateWork },
           { label: t('dashboard.menu.myWork'), onClick: handleViewWork }
