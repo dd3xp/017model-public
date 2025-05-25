@@ -1,3 +1,4 @@
 CREATE DATABASE text2cad
-然后运行install-and-build.bat
-然后运行start_t2c.bat
+运行run_install.bat
+运行run_build.bat
+运行run_start.bat

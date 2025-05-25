@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -7,6 +9,21 @@ import TopBar from '@/components/TopBar';
 export default function Dashboard() {
   const { t } = useTranslation('common');
   const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    try {
+      const decoded = jwtDecode<{ id: number; email: string }>(token);
+      setUserEmail(decoded.email);
+    } catch {
+      router.replace('/login');
+    }
+  }, [router]);
 
   const handleCreateWork = () => {
     router.push('/create');
@@ -19,7 +36,7 @@ export default function Dashboard() {
   return (
     <div className={styles.container}>
       <TopBar 
-        username="U"
+        username={userEmail || 'U'}
         menuItems={[
           { label: t('dashboard.menu.newWork'), onClick: handleCreateWork },
           { label: t('dashboard.menu.myWork'), onClick: handleViewWork }
