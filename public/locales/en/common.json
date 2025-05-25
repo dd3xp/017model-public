@@ -1,0 +1,40 @@
+{
+  "login": {
+    "brand": {
+      "title": "Text2CAD",
+      "description": "Convert text descriptions to CAD models using AI"
+    },
+    "title": "Login",
+    "email": {
+      "placeholder": "Enter your email",
+      "invalid": "Please enter a valid email address"
+    },
+    "verificationCode": {
+      "placeholder": "Enter verification code",
+      "send": "Send code",
+      "resend": "Resend in {{count}}s",
+      "sendFailed": "Failed to send code, please try again later"
+    },
+    "submit": {
+      "default": "Login",
+      "loading": "Logging in...",
+      "incomplete": "Please fill in all fields",
+      "failed": "Login failed, please try again later",
+      "invalidCode": "Invalid or expired code"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome to Dashboard",
+    "description": "This is a blank page where you can add your content.",
+    "menu": {
+      "newWork": "New Work",
+      "myWork": "My Work"
+    }
+  },
+  "email": {
+    "verificationCode": {
+      "subject": "Login Verification Code",
+      "content": "Your login verification code is: {{code}}. It will expire in 5 minutes, please login as soon as possible."
+    }
+  }
+} 
