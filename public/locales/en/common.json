@@ -50,6 +50,11 @@
       "default": "Start Generating",
       "generating": "Generating...",
       "failed": "Generation failed, please try again later"
+    },
+    "adjust": {
+      "default": "Adjust Model",
+      "adjusting": "Adjusting...",
+      "failed": "Adjustment failed, please try again later"
     }
   }
 } 

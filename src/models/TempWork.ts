@@ -5,7 +5,7 @@ export default class TempWork extends Model {
   declare id: number;
   declare userId: string;
   declare description: string;
-  declare tempPath: string;
+  declare scadPath: string;
   declare status: string;
   declare stlPath: string;
   declare createdAt: Date;
@@ -27,10 +27,9 @@ TempWork.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    tempPath: {
+    scadPath: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'temp_models/placeholder.txt',
     },
     status: {
       type: DataTypes.STRING,

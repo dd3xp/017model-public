@@ -30,7 +30,7 @@ export default function Dashboard() {
   };
 
   const handleViewWork = () => {
-    router.push('/dashboard/works');
+    router.push('/works');
   };
 
   if (!userEmail) {

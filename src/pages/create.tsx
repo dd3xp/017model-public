@@ -17,9 +17,11 @@ export default function CreateWork() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAdjusting, setIsAdjusting] = useState(false);
   const [workId, setWorkId] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -35,6 +37,33 @@ export default function CreateWork() {
       router.replace('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    if (!userId) return;
+    
+    const fetchCurrentWork = async () => {
+      try {
+        const response = await fetch(`/api/works/current?userId=${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setWorkId(data.id);
+          setDescription(data.description);
+        }
+      } catch (error) {
+        console.error('Failed to fetch current work:', error);
+      }
+    };
+
+    fetchCurrentWork();
+  }, [userId]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const handleCreateWork = () => {
     router.push('/create');
@@ -55,6 +84,7 @@ export default function CreateWork() {
       return;
     }
     setIsGenerating(true);
+    abortControllerRef.current = new AbortController();
     try {
       const response = await fetch('/api/works/create', {
         method: 'POST',
@@ -62,19 +92,60 @@ export default function CreateWork() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ userId, description }),
+        signal: abortControllerRef.current.signal
       });
       if (response.ok) {
         const data = await response.json();
-        setDescription('');
         setWorkId(data.id);
         alert(t('create.submit.success'));
       } else {
         alert(t('create.submit.failed'));
       }
-    } catch {
-      alert(t('create.submit.failed'));
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted');
+      } else {
+        alert(t('create.submit.failed'));
+      }
     } finally {
       setIsGenerating(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleAdjust = async () => {
+    if (!workId || !userId) return;
+    setIsAdjusting(true);
+    abortControllerRef.current = new AbortController();
+    try {
+      const response = await fetch('/api/works/adjust', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          workId,
+          description
+        }),
+        signal: abortControllerRef.current.signal
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWorkId(null);
+        setTimeout(() => setWorkId(workId), 100);
+        alert(t('create.adjust.success'));
+      } else {
+        alert(t('create.adjust.failed'));
+      }
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted');
+      } else {
+        alert(t('create.adjust.failed'));
+      }
+    } finally {
+      setIsAdjusting(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -83,16 +154,16 @@ export default function CreateWork() {
     const container = previewRef.current;
     container.innerHTML = '';
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(50, 50, 50);
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 2000);
+    camera.position.set(200, 200, 200);
     scene.add(new THREE.AmbientLight(0xffffff, 0.7));
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(100, 100, 100);
+    dirLight.position.set(400, 400, 400);
     dirLight.castShadow = true;
     scene.add(dirLight);
     const axesHelper = new THREE.AxesHelper(100);
     scene.add(axesHelper);
-    const gridHelper = new THREE.GridHelper(200, 20);
+    const gridHelper = new THREE.GridHelper(1000, 100);
     scene.add(gridHelper);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor('#f0f0f0');
@@ -150,16 +221,28 @@ export default function CreateWork() {
                 placeholder={t('create.input.placeholder')}
                 className={styles.textarea}
                 rows={6}
-                disabled={isGenerating}
+                disabled={isGenerating || isAdjusting}
               />
             </div>
-            <button 
-              type="submit" 
-              className={styles.submitButton}
-              disabled={isGenerating}
-            >
-              {isGenerating ? t('create.submit.generating') : t('create.submit.default')}
-            </button>
+            <div className={styles.buttonGroup}>
+              <button 
+                type="submit" 
+                className={styles.submitButton}
+                disabled={isGenerating || isAdjusting}
+              >
+                {isGenerating ? t('create.submit.generating') : t('create.submit.default')}
+              </button>
+              {workId && (
+                <button 
+                  type="button"
+                  onClick={handleAdjust}
+                  className={styles.adjustButton}
+                  disabled={isGenerating || isAdjusting}
+                >
+                  {isAdjusting ? t('create.adjust.adjusting') : t('create.adjust.default')}
+                </button>
+              )}
+            </div>
           </form>
         </div>
         <div className={styles.preview} ref={previewRef} />

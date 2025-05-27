@@ -39,17 +39,22 @@
   },
   "create": {
     "title": "创建新作品",
-    "description": "请描述您想要创建的 CAD 模型，我们将使用 AI 为您生成。",
+    "description": "描述你想要创建的 CAD 模型，我们将使用 AI 来生成它。",
     "input": {
-      "placeholder": "例如：一个带有圆形底座的圆柱体，高度为 10cm，底座直径为 5cm..."
+      "placeholder": "例如：一个圆柱体，圆形底面，高度 10 厘米，底面直径 5 厘米..."
     },
     "validation": {
       "required": "请输入模型描述"
     },
     "submit": {
       "default": "开始生成",
-      "generating": "正在生成...",
+      "generating": "生成中...",
       "failed": "生成失败，请稍后重试"
+    },
+    "adjust": {
+      "default": "修改模型",
+      "adjusting": "修改中...",
+      "failed": "修改失败，请稍后重试"
     }
   }
 } 
