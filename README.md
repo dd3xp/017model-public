@@ -4,7 +4,7 @@
 ## 安装与运行
 1. 克隆项目：
    ```bash
-   git clone https://github.com/dd3xp/017model-pupblic.git
+   git clone https://github.com/dd3xp/017model-public.git
    cd text2cad
    ```
 
