@@ -15,10 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await withDatabase(req, res, async () => {
     try {
       const currentWork = await TempWork.findOne({
-        where: { 
-          userId,
-          status: 'pending'
-        },
+        where: { userId },
         order: [['createdAt', 'DESC']],
       });
 

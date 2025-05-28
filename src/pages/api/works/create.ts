@@ -27,13 +27,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const fileId = await handleGenerateWork(userId, description, controller.signal);
       clearTimeout(timeout);
       res.status(200).json({ id: fileId });
-    } catch (e: any) {
+    } catch (error: unknown) {
       clearTimeout(timeout);
-      if (e.message === 'Request cancelled') {
+      if (error instanceof Error && error.message === 'Request cancelled') {
         return;
       }
-      console.error('Generate Work failed', e);
-      res.status(500).json({ error: (e as Error).message });
+      console.error('Generate Work failed', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' });
     }
   });
 } 

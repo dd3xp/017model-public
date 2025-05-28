@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { withDatabase } from '@/middleware/db';
 import { adjustModel } from '@/utils/AdjustWorks';
 import TempWork from '@/models/TempWork';
+import { Op } from 'sequelize';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -32,7 +33,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ message: 'Work not found' });
       }
 
-      const stlBase64 = await adjustModel(workId, description, controller.signal);
+      await TempWork.destroy({
+        where: {
+          userId: work.userId,
+          id: { [Op.ne]: workId }
+        }
+      });
+
+      await adjustModel(workId, description, controller.signal);
 
       await work.update({
         description,
@@ -43,14 +51,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         success: true
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeout);
-      if (error.message === 'Request cancelled' || error.code === 'ERR_CANCELED' || error.__CANCEL__) {
+      if (error instanceof Error && 
+          (error.message === 'Request cancelled' || 
+           error.name === 'AbortError' || 
+           (error as { __CANCEL__?: boolean }).__CANCEL__)) {
         console.log('Request was cancelled');
         return res.status(499).json({ message: 'Request cancelled' });
       }
       console.error('Adjust work failed:', error);
-      return res.status(500).json({ message: error.message || 'Internal server error' });
+      return res.status(500).json({ message: error instanceof Error ? error.message : 'Internal server error' });
     }
   });
 } 

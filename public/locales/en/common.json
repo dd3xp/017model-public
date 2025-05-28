@@ -39,7 +39,6 @@
   },
   "create": {
     "title": "Create New Work",
-    "description": "Describe the CAD model you want to create, and we'll generate it using AI.",
     "input": {
       "placeholder": "Example: A cylinder with a circular base, height 10cm, base diameter 5cm..."
     },
@@ -49,12 +48,37 @@
     "submit": {
       "default": "Start Generating",
       "generating": "Generating...",
+      "success": "Model generated successfully",
       "failed": "Generation failed, please try again later"
     },
     "adjust": {
       "default": "Adjust Model",
       "adjusting": "Adjusting...",
+      "success": "Model adjusted successfully",
       "failed": "Adjustment failed, please try again later"
+    },
+    "save": {
+      "default": "Save Model",
+      "saving": "Saving...",
+      "success": "Model saved successfully",
+      "failed": "Failed to save model",
+      "nameExists": "Model name already exists, please use a different name",
+      "dialog": {
+        "title": "Save Model",
+        "placeholder": "Enter model name",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      }
+    },
+    "delete": {
+      "default": "Delete Model",
+      "deleting": "Deleting...",
+      "success": "Model deleted successfully",
+      "failed": "Failed to delete model",
+      "confirm": "Are you sure you want to delete this model?"
     }
+  },
+  "userMenu": {
+    "logout": "Logout"
   }
 } 

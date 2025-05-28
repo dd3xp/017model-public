@@ -1,18 +1,17 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '@/lib/db';
 
-export default class TempWork extends Model {
+export default class SavedWork extends Model {
   declare id: number;
   declare userId: number;
+  declare name: string;
   declare description: string;
-  declare scadPath: string;
-  declare status: string;
   declare stlPath: string;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
 
-TempWork.init(
+SavedWork.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -23,18 +22,13 @@ TempWork.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
-    },
-    scadPath: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'pending',
     },
     stlPath: {
       type: DataTypes.STRING,
@@ -43,7 +37,7 @@ TempWork.init(
   },
   {
     sequelize: sequelize!,
-    modelName: 'TempWork',
-    tableName: 'tempworks',
+    modelName: 'SavedWork',
+    tableName: 'savedworks',
   }
 ); 

@@ -120,7 +120,7 @@ export default function Login() {
   );
 }
 
-export async function getStaticProps({ locale = 'zh' }) {
+export async function getServerSideProps({ locale = 'zh' }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),

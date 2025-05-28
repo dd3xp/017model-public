@@ -13,6 +13,19 @@ import path from 'path';
 import TempWork from '@/models/TempWork';
 import { updatePreview } from './PreviewWorks';
 
+interface ErrorWithMessage {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
 export async function adjustModel(workId: string, description: string, signal?: AbortSignal): Promise<string> {
   console.log('Starting model adjustment for workId:', workId);
   console.log('New description:', description);
@@ -40,11 +53,11 @@ export async function adjustModel(workId: string, description: string, signal?: 
     if (signal?.aborted) throw new Error('Request cancelled');
 
     return updatePreview(work, adjustedScad);
-  } catch (error: any) {
-    if (error.message === 'Request cancelled' || error.code === 'ERR_CANCELED' || error.__CANCEL__) {
-      throw new Error('Request cancelled');
+  } catch (error: unknown) {
+    if (isErrorWithMessage(error)) {
+      throw new Error(error.message);
     }
-    throw error;
+    throw new Error('Unknown error occurred');
   }
 }
 
@@ -93,11 +106,11 @@ async function generateAdjustedScad(scadContent: string, description: string, si
     console.log('Processed adjusted SCAD content length:', adjustedScad.length);
 
     return adjustedScad;
-  } catch (error: any) {
-    if (error.message === 'Request cancelled' || error.code === 'ERR_CANCELED' || error.__CANCEL__) {
-      throw new Error('Request cancelled');
+  } catch (error: unknown) {
+    if (isErrorWithMessage(error)) {
+      throw new Error(error.message);
     }
-    throw error;
+    throw new Error('Unknown error occurred');
   }
 }
 

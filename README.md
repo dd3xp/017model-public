@@ -17,8 +17,14 @@
    JWT_SECRET=your-secret-key
    DB_HOST=localhost
    DB_USER=your-db-user
-   DB_PASS=your-db-password
+   DB_PASSWORD=your-db-password
    DB_NAME=your-db-name
+   SMTP_HOST=your-smtp-host
+   SMTP_PORT=your-smtp-port
+   SMTP_USER=your-smtp-user
+   SMTP_PASS=your-smtp-password
+   SMTP_FROM=your-smtp-from-address
+   DEEPSEEK_API_KEY=your-deepseek-api-key
    ```
 
 4. 运行开发服务器：

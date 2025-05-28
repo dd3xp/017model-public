@@ -14,6 +14,31 @@ import fs from 'fs';
 import TempWork from '@/models/TempWork';
 import { updatePreview } from './PreviewWorks';
 
+interface ErrorWithMessage {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
+interface FileSystemError extends Error {
+  code?: string;
+}
+
+function isFileSystemError(error: unknown): error is FileSystemError {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    typeof (error as FileSystemError).code === 'string'
+  );
+}
+
 export async function encodeDescription(description: string): Promise<string> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const prompt = `
@@ -180,11 +205,15 @@ export async function convertScadToStl(scadContent: string, userId: string): Pro
   return { scadPath, stlPath, stlBuffer };
 }
 
-export async function saveWorkToDB(userId: string, scadPath: string, stlPath: string, description: string): Promise<string> {
+export async function saveWorkToDB(userId: string | number, scadPath: string, stlPath: string, description: string): Promise<string> {
+  await TempWork.destroy({
+    where: { userId: Number(userId) }
+  });
+
   const work = await TempWork.create({
-    userId: userId,
-    scadPath,
-    stlPath,
+    userId: Number(userId),
+    scadPath: path.relative(process.cwd(), scadPath),
+    stlPath: path.relative(process.cwd(), stlPath),
     description,
     status: 'pending',
   });
@@ -212,29 +241,30 @@ export async function handleGenerateWork(userId: string, description: string, si
     
     const fileId = await saveWorkToDB(userId, scadPath, stlPath, description);
     return fileId;
-  } catch (error) {
-    if (scadPath) {
-      try {
-        await fs.promises.unlink(scadPath);
-      } catch (e) {
-        console.error('Failed to delete SCAD file:', e);
-      }
+  } catch (error: unknown) {
+    if (isErrorWithMessage(error)) {
+      throw new Error(error.message);
     }
-    if (stlPath) {
-      try {
-        await fs.promises.unlink(stlPath);
-      } catch (e) {
-        console.error('Failed to delete STL file:', e);
-      }
-    }
-    throw error;
+    throw new Error('Unknown error occurred');
   }
 }
 
-export async function getStlFile(fileId: string): Promise<Buffer | null> {
-  const work = await TempWork.findByPk(fileId);
-  if (!work) return null;
-  return readFile(work.stlPath);
+export async function getStlFile(workId: string): Promise<Buffer> {
+  const work = await TempWork.findByPk(workId);
+  if (!work) {
+    throw new Error('Work not found');
+  }
+
+  const stlPath = path.join(process.cwd(), work.stlPath);
+  try {
+    const stlBuffer = await fs.promises.readFile(stlPath);
+    return stlBuffer;
+  } catch (error: unknown) {
+    if (isFileSystemError(error) && error.code === 'ENOENT') {
+      throw new Error('STL file not found');
+    }
+    throw error;
+  }
 }
 
 export async function generateWork(userId: string, description: string): Promise<TempWork> {
@@ -252,7 +282,7 @@ export async function generateWork(userId: string, description: string): Promise
     const scadContent = await generateScad(description);
     console.log('Generated SCAD content length:', scadContent.length);
 
-    const stlBase64 = await updatePreview(work, scadContent);
+    await updatePreview(work, scadContent);
     console.log('Preview updated successfully');
 
     return work;
