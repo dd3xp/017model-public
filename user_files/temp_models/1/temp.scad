@@ -1,58 +1,68 @@
-module spear_shaft(length=200, diameter=3) {
-    // Create the spear shaft as a long cylinder
-    cylinder(h=length, d=diameter, center=false);
-}
-
-module spear_head(length=25, width=5, shaft_diameter=3) {
-    // Create a triangular spear head
-    blade_height = length * 0.8;
-    base_thickness = shaft_diameter / 2;
+module blade() {
+    // Blade dimensions: 90cm long, 5cm wide, 0.5cm thick
+    length = 900;
+    width = 50;
+    thickness = 5;
     
-    linear_extrude(height=base_thickness, center=false) {
-        polygon(points=[
-            [0, 0],
-            [width/2, blade_height],
-            [-width/2, blade_height]
-        ]);
+    // Create double-edged blade with pointed tip
+    hull() {
+        translate([0, 0, length/2]) 
+            cube([width, thickness, 0.1], center=true);
+        translate([0, 0, -length/2]) 
+            cube([1, thickness, 0.1], center=true);
     }
-    
-    // Add transition piece between shaft and head
-    translate([0, 0, -shaft_diameter/2])
-    cylinder(h=shaft_diameter/2, d1=shaft_diameter, d2=width/2);
 }
 
-module spear_butt(length=5, diameter=3) {
-    // Create rounded butt cap
-    union() {
-        cylinder(h=length-1, d=diameter, center=false);
-        translate([0, 0, length-1])
+module hilt() {
+    // Hilt dimensions: 20cm long, 3cm diameter
+    length = 200;
+    diameter = 30;
+    
+    // Create tapered cylindrical hilt
+    cylinder(h=length, d1=diameter*0.9, d2=diameter, center=true);
+}
+
+module guard() {
+    // Guard dimensions: 15cm long, 2cm wide, 0.3cm thick
+    length = 150;
+    width = 20;
+    thickness = 3;
+    
+    // Create rounded rectangular guard
+    hull() {
+        for (x = [-1, 1], y = [-1, 1]) {
+            translate([x*(length/2 - width/2), y*(width/2 - width/2), 0])
+                cylinder(d=width, h=thickness, center=true);
+        }
+    }
+}
+
+module pommel() {
+    // Pommel dimensions: 4cm diameter
+    diameter = 40;
+    
+    // Create spherical pommel with flattened base
+    difference() {
         sphere(d=diameter);
+        translate([0, 0, -diameter/2])
+            cube([diameter, diameter, diameter], center=true);
     }
 }
 
-module spear(
-    shaft_length = 200,
-    shaft_diameter = 3,
-    head_length = 25,
-    head_width = 5,
-    butt_length = 5
-) {
-    // Assemble complete spear
-    color("Goldenrod") spear_shaft(length=shaft_length, diameter=shaft_diameter);
+module sword() {
+    // Assemble all sword components
     
-    // Add head at top
-    translate([0, 0, shaft_length])
-    rotate([90, 0, 0])
-    color("Silver") spear_head(
-        length=head_length,
-        width=head_width,
-        shaft_diameter=shaft_diameter
-    );
+    // Blade positioned above origin
+    translate([0, 0, 450]) blade();
     
-    // Add butt at bottom
-    translate([0, 0, -butt_length])
-    color("Silver") spear_butt(length=butt_length, diameter=shaft_diameter);
+    // Hilt positioned below origin
+    translate([0, 0, -100]) hilt();
+    
+    // Guard positioned at origin (between blade and hilt)
+    rotate([90, 0, 0]) guard();
+    
+    // Pommel positioned at bottom of hilt
+    translate([0, 0, -200]) pommel();
 }
 
-// Create the spear
-spear();
+sword();

@@ -1,37 +1,41 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getStlFile } from '@/utils/GenerateWorks';
-
-interface FileSystemError extends Error {
-  code?: string;
-}
+import { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+import { initDatabase } from '@/lib/init';
+import SavedWork from '@/models/SavedWork';
+import TempWork from '@/models/TempWork';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ message: 'Method not allowed' });
   }
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    res.status(400).json({ error: 'Missing id' });
-    return;
-  }
+
   try {
-    const stlBuffer = await getStlFile(id);
-    
-    if (!stlBuffer) {
-      res.status(404).json({ error: 'STL file not found' });
-      return;
+    await initDatabase();
+    const { id, path: filePath } = req.query;
+
+    let finalPath: string;
+    if (id) {
+      const work = await TempWork.findByPk(id as string);
+      if (!work) {
+        return res.status(404).json({ message: 'Work not found' });
+      }
+      finalPath = work.stlPath;
+    } else if (filePath) {
+      finalPath = decodeURIComponent(filePath as string);
+    } else {
+      return res.status(400).json({ message: 'Either id or path is required' });
     }
 
+    const stlBuffer = fs.readFileSync(finalPath);
+    const filename = path.basename(finalPath);
+    const encodedFilename = encodeURIComponent(filename);
+
     res.setHeader('Content-Type', 'model/stl');
-    res.setHeader('Content-Disposition', `inline; filename="${id}.stl"`);
+    res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodedFilename}`);
     res.end(stlBuffer);
   } catch (error: unknown) {
     console.error('Failed to get STL file:', error);
-    if (error instanceof Error && (error as FileSystemError).code === 'ENOENT') {
-      res.status(404).json({ error: 'STL file not found' });
-    } else {
-      res.status(500).json({ error: 'Failed to get STL file' });
-    }
+    res.status(500).json({ message: 'Internal server error' });
   }
 } 

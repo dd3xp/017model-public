@@ -80,5 +80,14 @@
   },
   "userMenu": {
     "logout": "退出登录"
+  },
+  "works": {
+    "title": "我的作品",
+    "noPreview": "请选择一个作品进行预览",
+    "delete": {
+      "confirm": "确定要删除这个作品吗？",
+      "success": "作品已成功删除",
+      "failed": "删除作品失败"
+    }
   }
 } 
