@@ -1,6 +1,5 @@
 import SavedWork from '@/models/SavedWork';
 import fs from 'fs';
-import path from 'path';
 
 export async function deleteWork(workId: number): Promise<boolean> {
   try {

@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 import { initDatabase } from '@/lib/init';
-import SavedWork from '@/models/SavedWork';
 import TempWork from '@/models/TempWork';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
